@@ -1,11 +1,14 @@
 import { FC, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useDispatch, useSelector } from '../../services/store';
 import { clearOrderModal, createOrder } from '../../services/slices/ordersSlice';
+import { clearConstructor } from '../../services/slices/constructorSlice';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const constructorState = useSelector((state) => state.constructor);
   const constructorItems = {
     bun: constructorState?.bun ?? null,
@@ -13,8 +16,13 @@ export const BurgerConstructor: FC = () => {
   };
   const { bun = null, ingredients = [] } = constructorItems;
   const { orderRequest, orderModalData } = useSelector((state) => state.orders);
+  const { user } = useSelector((state) => state.auth);
 
   const onOrderClick = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     if (!bun || orderRequest) return;
     const ingredientIds = [
       bun._id,
@@ -25,6 +33,9 @@ export const BurgerConstructor: FC = () => {
   };
   const closeOrderModal = () => {
     dispatch(clearOrderModal());
+    if (orderModalData) {
+      dispatch(clearConstructor());
+    }
   };
 
   const price = useMemo(

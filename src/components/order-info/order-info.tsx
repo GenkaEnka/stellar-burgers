@@ -1,20 +1,36 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
-import { useSelector } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
+import { fetchOrderByNumber } from '../../services/slices/ordersSlice';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
+  const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.feed);
-  const { orders: profileOrders } = useSelector((state) => state.orders);
+  const { orders: profileOrders, orderModalData } = useSelector((state) => state.orders);
   const { data: ingredients } = useSelector((state) => state.ingredients);
 
   const orderData = useMemo(() => {
     const parsedNumber = Number(number);
-    return [...orders, ...profileOrders].find((item) => item.number === parsedNumber) || null;
-  }, [number, orders, profileOrders]);
+    return (
+      [...orders, ...profileOrders].find((item) => item.number === parsedNumber) ||
+      orderModalData ||
+      null
+    );
+  }, [number, orders, profileOrders, orderModalData]);
+
+  useEffect(() => {
+    const parsedNumber = Number(number);
+    const exists = [...orders, ...profileOrders].some(
+      (item) => item.number === parsedNumber
+    );
+    if (!exists && parsedNumber) {
+      dispatch(fetchOrderByNumber(parsedNumber));
+    }
+  }, [number, orders, profileOrders, dispatch]);
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
