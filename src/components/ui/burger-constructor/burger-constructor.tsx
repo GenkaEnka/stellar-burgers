@@ -17,16 +17,23 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
   orderModalData,
   onOrderClick,
   closeOrderModal
-}) => (
-  <section className={styles.burger_constructor}>
-    {constructorItems.bun ? (
+}) => {
+  const safeConstructorItems = constructorItems ?? { bun: null, ingredients: [] };
+  const bun = safeConstructorItems.bun ?? null;
+  const ingredients = Array.isArray(safeConstructorItems.ingredients)
+    ? safeConstructorItems.ingredients
+    : [];
+
+  return (
+    <section className={styles.burger_constructor}>
+      {bun ? (
       <div className={`${styles.element} mb-4 mr-4`}>
         <ConstructorElement
           type='top'
           isLocked
-          text={`${constructorItems.bun.name} (верх)`}
-          price={constructorItems.bun.price}
-          thumbnail={constructorItems.bun.image}
+          text={`${bun.name} (верх)`}
+          price={bun.price}
+          thumbnail={bun.image}
         />
       </div>
     ) : (
@@ -37,13 +44,13 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       </div>
     )}
     <ul className={styles.elements}>
-      {constructorItems.ingredients.length > 0 ? (
-        constructorItems.ingredients.map(
+      {ingredients.length > 0 ? (
+        ingredients.map(
           (item: TConstructorIngredient, index: number) => (
             <BurgerConstructorElement
               ingredient={item}
               index={index}
-              totalItems={constructorItems.ingredients.length}
+              totalItems={ingredients.length}
               key={item.id}
             />
           )
@@ -56,14 +63,14 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         </div>
       )}
     </ul>
-    {constructorItems.bun ? (
+    {bun ? (
       <div className={`${styles.element} mt-4 mr-4`}>
         <ConstructorElement
           type='bottom'
           isLocked
-          text={`${constructorItems.bun.name} (низ)`}
-          price={constructorItems.bun.price}
-          thumbnail={constructorItems.bun.image}
+          text={`${bun.name} (низ)`}
+          price={bun.price}
+          thumbnail={bun.image}
         />
       </div>
     ) : (
@@ -102,4 +109,5 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       </Modal>
     )}
   </section>
-);
+  );
+};

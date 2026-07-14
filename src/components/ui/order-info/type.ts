@@ -16,5 +16,5 @@ type TOrderInfo = {
   createdAt: string;
   updatedAt: string;
   number: number;
-  ingredients: string[];
+  ingredients: string[] | undefined;
 };
