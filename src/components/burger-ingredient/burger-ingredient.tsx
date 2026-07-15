@@ -21,7 +21,8 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
       }
     };
 
-    const totalCount = ingredient.type === 'bun' && bun?._id === ingredient._id ? 2 : count;
+    const totalCount =
+      ingredient.type === 'bun' && bun?._id === ingredient._id ? 2 : count;
 
     return (
       <BurgerIngredientUI

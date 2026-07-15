@@ -18,7 +18,9 @@ const initialState: TFeedState = {
   error: null
 };
 
-export const fetchFeeds = createAsyncThunk('feed/fetchFeeds', async () => getFeedsApi());
+export const fetchFeeds = createAsyncThunk('feed/fetchFeeds', async () =>
+  getFeedsApi()
+);
 
 const feedSlice = createSlice({
   name: 'feed',
@@ -38,7 +40,8 @@ const feedSlice = createSlice({
       })
       .addCase(fetchFeeds.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Не удалось загрузить ленту заказов';
+        state.error =
+          action.error.message || 'Не удалось загрузить ленту заказов';
       });
   }
 });

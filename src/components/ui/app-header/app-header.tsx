@@ -1,5 +1,5 @@
-import React, { FC } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { FC, ReactNode } from 'react';
+import { NavLink, useMatch } from 'react-router-dom';
 import styles from './app-header.module.css';
 import { TAppHeaderUIProps } from './type';
 import {
@@ -9,28 +9,76 @@ import {
   ProfileIcon
 } from '@zlden/react-developer-burger-ui-components';
 
-export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName, pathname }) => (
+type TAppNavLinkProps = {
+  to: string;
+  end?: boolean;
+  children: (isActive: boolean) => ReactNode;
+};
+
+const AppNavLink: FC<TAppNavLinkProps> = ({ to, end, children }) => {
+  const match = useMatch({ path: to, end });
+  const isActive = !!match;
+
+  return (
+    <NavLink
+      to={to}
+      className={`${styles.link} ${isActive ? styles.link_active : ''}`}
+    >
+      {children(isActive)}
+    </NavLink>
+  );
+};
+
+const AppProfileLink: FC<TAppNavLinkProps> = ({ to, end, children }) => {
+  const match = useMatch({ path: to, end });
+  const isActive = !!match;
+
+  return (
+    <NavLink
+      to={to}
+      className={`${styles.link} ${styles.link_position_last} ${isActive ? styles.link_active : ''}`}
+    >
+      {children(isActive)}
+    </NavLink>
+  );
+};
+
+export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => (
   <header className={styles.header}>
     <nav className={`${styles.menu} p-4`}>
       <div className={styles.menu_part_left}>
-        <NavLink to='/' className={`${styles.link} ${pathname === '/' ? styles.link_active : ''}`}>
-          <BurgerIcon type={pathname === '/' ? 'primary' : 'secondary'} />
-          <p className='text text_type_main-default ml-2 mr-10'>Конструктор</p>
-        </NavLink>
-        <NavLink to='/feed' className={`${styles.link} ${pathname.startsWith('/feed') ? styles.link_active : ''}`}>
-          <ListIcon type={pathname.startsWith('/feed') ? 'primary' : 'secondary'} />
-          <p className='text text_type_main-default ml-2'>Лента заказов</p>
-        </NavLink>
+        <AppNavLink to='/' end>
+          {(isActive) => (
+            <>
+              <BurgerIcon type={isActive ? 'primary' : 'secondary'} />
+              <p className='text text_type_main-default ml-2 mr-10'>
+                Конструктор
+              </p>
+            </>
+          )}
+        </AppNavLink>
+        <AppNavLink to='/feed'>
+          {(isActive) => (
+            <>
+              <ListIcon type={isActive ? 'primary' : 'secondary'} />
+              <p className='text text_type_main-default ml-2'>Лента заказов</p>
+            </>
+          )}
+        </AppNavLink>
       </div>
       <div className={styles.logo}>
         <Logo className='' />
       </div>
-      <NavLink to='/profile' className={`${styles.link_position_last} ${pathname.startsWith('/profile') ? styles.link_active : ''}`}>
-        <ProfileIcon type={pathname.startsWith('/profile') ? 'primary' : 'secondary'} />
-        <p className='text text_type_main-default ml-2'>
-          {userName || 'Личный кабинет'}
-        </p>
-      </NavLink>
+      <AppProfileLink to='/profile'>
+        {(isActive) => (
+          <>
+            <ProfileIcon type={isActive ? 'primary' : 'secondary'} />
+            <p className='text text_type_main-default ml-2'>
+              {userName || 'Личный кабинет'}
+            </p>
+          </>
+        )}
+      </AppProfileLink>
     </nav>
   </header>
 );

@@ -1,5 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { getUserApi, loginUserApi, logoutApi, registerUserApi, updateUserApi } from '@api';
+import {
+  getUserApi,
+  loginUserApi,
+  logoutApi,
+  registerUserApi,
+  updateUserApi
+} from '@api';
 import { TUser } from '@utils-types';
 import { setCookie, deleteCookie } from '../../utils/cookie';
 
@@ -35,7 +41,15 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async ({ email, name, password }: { email: string; name: string; password: string }) => {
+  async ({
+    email,
+    name,
+    password
+  }: {
+    email: string;
+    name: string;
+    password: string;
+  }) => {
     const data = await registerUserApi({ email, name, password });
     localStorage.setItem('refreshToken', data.refreshToken);
     setCookie('accessToken', data.accessToken);

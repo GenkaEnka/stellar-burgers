@@ -14,10 +14,15 @@ import {
 import '../../index.css';
 import styles from './app.module.css';
 
-import { AppHeader, IngredientDetails, Modal, OrderInfo, ProtectedRoute } from '@components';
+import {
+  AppHeader,
+  IngredientDetails,
+  Modal,
+  OrderInfo,
+  ProtectedRoute
+} from '@components';
 import { useDispatch, useSelector } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingredientsSlice';
-import { fetchFeeds } from '../../services/slices/feedSlice';
 import { getUser } from '../../services/slices/authSlice';
 import { Preloader } from '@ui';
 
@@ -27,12 +32,15 @@ const App = () => {
   const navigate = useNavigate();
   const background = location.state?.background;
 
-  const { data: ingredients, loading, error } = useSelector((state) => state.ingredients);
+  const {
+    data: ingredients,
+    loading,
+    error
+  } = useSelector((state) => state.ingredients);
   const { isAuthChecked } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fetchIngredients());
-    dispatch(fetchFeeds());
     dispatch(getUser());
   }, [dispatch]);
 
@@ -54,13 +62,17 @@ const App = () => {
             loading ? (
               <Preloader />
             ) : error ? (
-              <div className={`${styles.error} text text_type_main-medium pt-4`}>
+              <div
+                className={`${styles.error} text text_type_main-medium pt-4`}
+              >
                 {error}
               </div>
             ) : ingredients.length > 0 ? (
               <ConstructorPage />
             ) : (
-              <div className={`${styles.title} text text_type_main-medium pt-4`}>
+              <div
+                className={`${styles.title} text text_type_main-medium pt-4`}
+              >
                 Нет игредиентов
               </div>
             )
@@ -149,9 +161,11 @@ const App = () => {
           <Route
             path='/profile/orders/:number'
             element={
-              <Modal title='' onClose={handleModalClose}>
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute>
+                <Modal title='' onClose={handleModalClose}>
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
             }
           />
         </Routes>

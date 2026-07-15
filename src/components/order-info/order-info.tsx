@@ -10,27 +10,31 @@ export const OrderInfo: FC = () => {
   const { number } = useParams();
   const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.feed);
-  const { orders: profileOrders, orderModalData } = useSelector((state) => state.orders);
+  const {
+    orders: profileOrders,
+    orderByNumber,
+    orderByNumberRequest
+  } = useSelector((state) => state.orders);
   const { data: ingredients } = useSelector((state) => state.ingredients);
 
   const orderData = useMemo(() => {
     const parsedNumber = Number(number);
-    return (
-      [...orders, ...profileOrders].find((item) => item.number === parsedNumber) ||
-      orderModalData ||
-      null
-    );
-  }, [number, orders, profileOrders, orderModalData]);
+    const found =
+      [...orders, ...profileOrders].find(
+        (item) => item.number === parsedNumber
+      ) || (orderByNumber?.number === parsedNumber ? orderByNumber : null);
+    return found || null;
+  }, [number, orders, profileOrders, orderByNumber]);
 
   useEffect(() => {
     const parsedNumber = Number(number);
-    const exists = [...orders, ...profileOrders].some(
-      (item) => item.number === parsedNumber
+    const exists = [...orders, ...profileOrders, orderByNumber].some(
+      (item) => item?.number === parsedNumber
     );
     if (!exists && parsedNumber) {
       dispatch(fetchOrderByNumber(parsedNumber));
     }
-  }, [number, orders, profileOrders, dispatch]);
+  }, [number, orders, profileOrders, orderByNumber, dispatch]);
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
