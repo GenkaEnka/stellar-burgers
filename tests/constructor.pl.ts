@@ -1,17 +1,12 @@
 import { test, expect } from '@playwright/test';
-import ingredientsMock from './mocks/ingredients.json';
 
 const MOCK_ORDER_NUMBER = 54321;
 
 test.describe('Конструктор бургера — интеграционные тесты', () => {
   test.beforeEach(async ({ page }) => {
-    // Перехват запросов к api/ingredients с моковыми данными из HAR
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: ingredientsMock })
-      });
+    // Перехват запросов к api/ingredients из HAR-файла
+    await page.routeFromHAR('./tests/hars/ingredients.har', {
+      url: '**/api/ingredients'
     });
 
     // Навигация на главную страницу
@@ -71,7 +66,7 @@ test.describe('Конструктор бургера — интеграцион�
 
     // Проверка, что отображаются данные именно этого ингредиента
     await expect(
-      page.locator('h3').filter({ hasText: 'Краторная булка N-200i' })
+      page.locator('#modals').filter({ hasText: 'Краторная булка N-200i' })
     ).toBeVisible();
     // Проверка nutritional values в модальном окне
     const modalContent = page.locator('#modals');
@@ -110,48 +105,19 @@ test.describe('Конструктор бургера — интеграцион�
 
 test.describe('Создание заказа', () => {
   test.beforeEach(async ({ page }) => {
-    // Перехват запросов к api/ingredients
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: ingredientsMock })
-      });
+    // Перехват запросов к api/ingredients из HAR-файла
+    await page.routeFromHAR('./tests/hars/ingredients.har', {
+      url: '**/api/ingredients'
     });
 
-    // Перехват запросов к api/auth/user для авторизации
-    await page.route('**/api/auth/user', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          user: { email: 'test@example.com', name: 'Test User' }
-        })
-      });
+    // Перехват запросов к api/auth/user из HAR-файла
+    await page.routeFromHAR('./tests/hars/orders.har', {
+      url: '**/api/auth/user'
     });
 
-    // Перехват POST запросов к api/orders
-    await page.route('**/api/orders', async (route, request) => {
-      if (request.method() === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            success: true,
-            order: {
-              _id: 'test-order-id',
-              status: 'done',
-              name: 'Test Burger',
-              number: MOCK_ORDER_NUMBER,
-              price: 1000
-            },
-            name: 'Test Burger'
-          })
-        });
-      } else {
-        await route.continue();
-      }
+    // Перехват запросов к api/orders из HAR-файла
+    await page.routeFromHAR('./tests/hars/orders.har', {
+      url: '**/api/orders'
     });
 
     // Подставляем фейковые токены авторизации
